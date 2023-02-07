@@ -2,7 +2,9 @@
 
 **S**ome **QUI**ck **R**earranging to **R**esolve **E**volutionary **L**inks
 
-## Generate a quick monkeypox alignment
+This is a fork of the squirrel repo, intended for my personal use, it uses the MOCV genome U60315 as the default reference, but reference data can be controlled using the parameters -r, -m, -b, -c (see below).
+
+## Generate a quick alignment
 
 ```
 usage: squirrel <input> [options]
@@ -31,14 +33,21 @@ Misc options:
   --verbose             Print lots of stuff to screen
   -t THREADS, --threads THREADS
                         Number of threads
+
+Reference genome options:
+  -r REF_FASTA, --ref_fasta REF_FASTA Reference genome filename?
+  -m REF_MASK, --ref_mask REF_MASK What to mask?
+  -b REF_GENE_BOUNDARIES, --ref_gene_boundaries REF_GENE_BOUNDARIES Where are the CDS?
+  -c REF_TRIM_END, --ref_trim_end REF_TRIM_END Where to trim off second ITR
+
 ```
 
 ## How it works
 
-Squirrel maps each query genome in the input file against the NC_063383 reference genome using [minimap2](https://academic.oup.com/bioinformatics/article/34/18/3094/4994778). It then trims to 190788 at the end of the genome to mask out one of the ITR regions and pads the end of the genome with `N`. It performs masking (replacement with `N`) on low-complexity or repetitive regions, defined [here](https://github.com/aineniamh/squirrel/blob/main/squirrel/data/to_mask.csv). The masking can be toggled on and off.
+Squirrel maps each query genome in the input file against the a reference genome (default U60315) using [minimap2](https://academic.oup.com/bioinformatics/article/34/18/3094/4994778). It then trims to a given coordinate (default 185579) at the end of the genome to mask out one of the ITR regions and pads the end of the genome with `N`. It performs masking (replacement with `N`) on low-complexity or repetitive regions, defined [here](https://github.com/aineniamh/squirrel/blob/main/squirrel/data/to_mask.csv). The masking can be toggled on and off.
 Using [gofasta](https://academic.oup.com/bioinformatics/article/38/16/4033/6631223), the map file is then converted into a multiple sequence alignment. 
 
-Squirrel by default creates a single alignment fasta file. Using the genbank coordinates for NC_063383 it also has the ability to extract the aligned coding sequences either as separate records or as a concatenated alignment. This can facilitate codon-aware phylogenetic or sequence analysis.
+This fork of Squirrel by default creates a single alignment fasta file. Using the genbank coordinates it also has the ability to extract the aligned coding sequences either as separate records or as a concatenated alignment. This can facilitate codon-aware phylogenetic or sequence analysis.
 
 ## Installation
 
