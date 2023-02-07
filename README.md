@@ -2,7 +2,7 @@
 
 **S**ome **QUI**ck **R**earranging to **R**esolve **E**volutionary **L**inks
 
-This is a fork of the squirrel repo, intended for my personal use, it uses the MOCV genome U60315 as the default reference, but reference data can be controlled using the parameters -r, -m, -b, -c (see below).
+This is a fork of the squirrel repo uses the MOCV genome U60315 as the default reference, but reference data can be controlled using the parameters -r, -m, -b, -c (see below). 
 
 ## Generate a quick alignment
 
