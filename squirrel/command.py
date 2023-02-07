@@ -16,7 +16,6 @@ import snakemake
 thisdir = os.path.abspath(os.path.dirname(__file__))
 cwd = os.getcwd()
 
-
 def main(sysargs = sys.argv[1:]):
     parser = argparse.ArgumentParser(prog = _program,
     description='squirrel: Some QUIck Rearranging to Resolve Evolutionary Links',
@@ -39,6 +38,12 @@ def main(sysargs = sys.argv[1:]):
     m_group.add_argument("-v","--version", action='version', version=f"squirrel {__version__}")
     m_group.add_argument("--verbose",action="store_true",help="Print lots of stuff to screen")
     m_group.add_argument("-t","--threads",action="store",default=1,type=int, help="Number of threads")
+    
+    c_group = parser.add_argument_group('Reference genome options')
+    c_group.add_argument("-r", "--ref_fasta", action="store", help="Reference genome filename?", default=os.path.join(thisdir, "data/reference.fasta"))
+    c_group.add_argument("-m", "--ref_mask", action="store", help="What to mask?", default=os.path.join(thisdir, "data/to_mask.csv"))
+    c_group.add_argument("-b", "--ref_gene_boundaries", action="store", help="Where are the CDS?", default=os.path.join(thisdir, "data/gene_boundaries.csv"))
+    c_group.add_argument("-c", "--ref_trim_end", action="store", help="Where to trim off second ITR", default=185579)
 
 
     if len(sysargs)<1:
@@ -50,7 +55,27 @@ def main(sysargs = sys.argv[1:]):
     # Initialise config dict
     config = setup_config_dict(cwd)
 
-    get_datafiles(config)
+    #get_datafiles(config, args.ref_fasta, args.ref_mask, args.ref_gene_boundaries)
+    
+    ref_fasta = os.path.join(cwd, args.ref_fasta) if args.ref_fasta.startswith(thisdir) != True else args.ref_fasta
+    ref_mask = os.path.join(cwd, args.ref_mask) if args.ref_mask.startswith(thisdir) != True else args.ref_mask
+    ref_gene_boundaries = os.path.join(cwd, args.ref_gene_boundaries) if args.ref_gene_boundaries.startswith(thisdir) != True else args.ref_gene_boundaries
+    
+    get_ref_data(config, 
+                 [
+                     KEY_REFERENCE_FASTA, 
+                     KEY_TO_MASK, 
+                     KEY_GENE_BOUNDARIES
+                     ], 
+                 [
+                     ref_fasta,
+                     ref_mask,
+                     ref_gene_boundaries
+                     ])
+    
+    config[KEY_TRIM_END] = args.ref_trim_end
+    
+
 
     config[KEY_OUTDIR] = io.set_up_outdir(args.outdir,cwd,config[KEY_OUTDIR])
     config[KEY_OUTFILE],config[KEY_CDS_OUTFILE] = io.set_up_outfile(args.outfile,args.input, config[KEY_OUTFILE],config[KEY_OUTDIR])
@@ -59,6 +84,7 @@ def main(sysargs = sys.argv[1:]):
     io.pipeline_options(args.no_mask, args.no_itr_mask, args.extract_cds, args.concatenate, config)
 
     config[KEY_INPUT_FASTA] = io.find_query_file(cwd, config[KEY_TEMPDIR], args.input)
+
     
     snakefile = get_snakefile(thisdir,"msa")
 
